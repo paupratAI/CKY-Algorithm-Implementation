@@ -43,9 +43,9 @@ def read_input(file_path):
     
     return grammars
 
-def cyk_algorithm(grammar, word):
+def cky(grammar, word):
     """
-    Implementa l'algoritme CYK per determinar si una paraula pertany al llenguatge d'una gramàtica donada.
+    Implementa l'algoritme CKY per determinar si una paraula pertany al llenguatge d'una gramàtica donada.
     
     :param grammar: Un diccionari que representa la CFG en CNF.
     :param word: Una cadena que representa la paraula a verificar.
@@ -64,9 +64,11 @@ def cyk_algorithm(grammar, word):
 file_path = 'test_cases.txt'
 grammars = read_input(file_path)
 
-for i, (grammar, words) in enumerate(grammars):
-    print(f"Provem gramàtica G{i+1}")
+# Quan cky() funcioni, descomentar això:
+'''for i, (grammar, words) in enumerate(grammars):
+    print(f"Gramàtica G{i+1}")
     for word in words:
-        result = cyk_algorithm(grammar, word)
+        result = cky(grammar, word)
         print(f"Paraula: {word}, pertany al llenguatge: {result}")
     print()
+'''
