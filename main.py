@@ -1,49 +1,72 @@
 def read_input(file_path):
     """
-    Reads a CFG in CNF format and words from a text file.
+    Llegeix múltiples CFGs en CNF format i les seves paraules corresponents des d'un arxiu de text.
 
-    :param file_path: Path to the input file.
-    :return: A tuple containing the grammar rules and the list of words.
+    :param file_path: Ruta a l'arxiu d'entrada.
+    :return: Una llista de tuples, cadascuna contenint un diccionari de gramàtica i una llista de paraules.
     """
     with open(file_path, 'r') as file:
         lines = file.readlines()
 
-    grammar = {}
-    words = []
+    grammars = []
+    current_grammar = {}
+    current_words = []
     reading_grammar = True
 
     for line in lines:
         line = line.strip()
-        if line.startswith("#"):
+        if line.startswith("#") or not line:
             continue
-        if reading_grammar:
-            if line == "":
-                reading_grammar = False
+        if line[0].isdigit() and line[1] == '.':
+            # Inici d'una nova secció de gramàtica
+            if current_grammar:
+                grammars.append((current_grammar, current_words))
+                current_grammar = {}
+                current_words = []
+            reading_grammar = True
+        elif reading_grammar:
+            if '->' in line:
+                lhs, rhs = line.split(" -> ")  # lhs: costat esquerre, rhs: costat dret
+                productions = rhs.split(" | ")
+                if lhs not in current_grammar:
+                    current_grammar[lhs] = []
+                for production in productions:
+                    current_grammar[lhs].append(production.split())
             else:
-                lhs, rhs = line.split(" -> ")
-                if lhs not in grammar:
-                    grammar[lhs] = []
-                grammar[lhs].append(rhs.split())
+                reading_grammar = False
+                current_words.append(line)
         else:
-            if line:
-                words.append(line)
+            current_words.append(line)
+
+    if current_grammar:
+        grammars.append((current_grammar, current_words))
     
-    return grammar, words
+    return grammars
 
 def cyk_algorithm(grammar, word):
     """
-    Implements the CKY algorithm to determine if a word belongs to the language of a given grammar.
-
-    :param grammar: A dictionary representing the CFG in CNF.
-    :param word: A string representing the word to be checked.
-    :return: True if the word belongs to the language, False otherwise.
+    Implementa l'algoritme CYK per determinar si una paraula pertany al llenguatge d'una gramàtica donada.
+    
+    :param grammar: Un diccionari que representa la CFG en CNF.
+    :param word: Una cadena que representa la paraula a verificar.
+    :return: True si la paraula pertany al llenguatge, False altrament.
     """
+    n = len(word)
+    if n == 0:
+        return False
+
+    # Inicialitza la taula
+    table = [[set() for _ in range(n)] for _ in range(n)]
+
     pass
 
-
-
+# Programa principal
 file_path = 'test_cases.txt'
-grammar, words = read_input(file_path)
-for word in words:
-    result = cyk_algorithm(grammar, word)
-    print(f"Word: {word}, Belongs to language: {result}")
+grammars = read_input(file_path)
+
+for i, (grammar, words) in enumerate(grammars):
+    print(f"Provem gramàtica G{i+1}")
+    for word in words:
+        result = cyk_algorithm(grammar, word)
+        print(f"Paraula: {word}, pertany al llenguatge: {result}")
+    print()
