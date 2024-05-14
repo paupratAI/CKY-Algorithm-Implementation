@@ -1,0 +1,18 @@
+# Grammar G1
+S -> a
+S -> XA
+S -> AX
+S -> b
+A -> RB
+B -> AX
+B -> b
+B -> a
+X -> a
+R -> XB
+
+# Words
+a
+b
+aa
+ab
+ba
