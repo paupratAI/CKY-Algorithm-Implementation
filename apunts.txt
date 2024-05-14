@@ -1,0 +1,7 @@
+IMPORTANT!: La carpeta s'haurà d'entregar com 'nombre_completo1_nombre_completo2.zip.'
+
+
+Fer funció per comprovar si la gramàtica està en FNC. Si no ho està, caldrà transformar-la.
+
+
+
