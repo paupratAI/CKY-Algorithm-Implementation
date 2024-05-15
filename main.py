@@ -102,10 +102,15 @@ def write_output_file(output_path, grammars_and_words):
                 file.write(f"{word}: {result}\n")
             file.write("\n")
 
-# Let's test the implementation with the provided input file
-input_file_path = 'input.txt'
-output_file_path = 'output.txt'
-grammars_and_words = read_input_file(input_file_path)
-write_output_file(output_file_path, grammars_and_words)
+def main():
+    """
+    Main function to read input, execute the CKY algorithm, and write the output.
+    """
+    input_file_path = 'input.txt'
+    output_file_path = 'output.txt'
+    grammars_and_words = read_input_file(input_file_path)
+    write_output_file(output_file_path, grammars_and_words)
+    print(f"Results written to {output_file_path}")
 
-print(f"Results written to {output_file_path}")
+if __name__ == "__main__":
+    main()
