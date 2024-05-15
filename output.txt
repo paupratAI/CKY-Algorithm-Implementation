@@ -1,10 +1,11 @@
-Gramatica:
-S -> a | XA | AX | b
+Grammar:
+S -> a | xA | AX | b
 A -> RB
 B -> AX | b | a
 X -> a
 R -> XB
-Paraules a provar:
+The grammar is NOT in CNF.
+Results:
 a: True
 b: True
 aa: False
@@ -12,13 +13,14 @@ ab: False
 ba: False
 abaa: True
 
-Gramatica:
+Grammar:
 S -> AB | CD | CB | SS
 A -> BC | a
 B -> SC | b
 C -> DD | b
 D -> BA
-Paraules a provar:
+The grammar is in CNF.
+Results:
 ab: True
 ba: False
 aabb: True
