@@ -1,0 +1,27 @@
+Gramatica:
+S -> a | XA | AX | b
+A -> RB
+B -> AX | b | a
+X -> a
+R -> XB
+Paraules a provar:
+a: True
+b: True
+aa: False
+ab: False
+ba: False
+abaa: True
+
+Gramatica:
+S -> AB | CD | CB | SS
+A -> BC | a
+B -> SC | b
+C -> DD | b
+D -> BA
+Paraules a provar:
+ab: True
+ba: False
+aabb: True
+abab: True
+baba: False
+
