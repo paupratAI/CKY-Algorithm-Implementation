@@ -1,74 +1,53 @@
-def read_input(file_path):
-    """
-    Llegeix múltiples CFGs en CNF format i les seves paraules corresponents des d'un arxiu de text.
+def parse_grammar(grammar):
+    rules = {}
+    for rule in grammar:
+        lhs, rhs = rule.split("->")
+        lhs = lhs.strip()
+        rhs = [r.strip() for r in rhs.split("|")]
+        rules[lhs] = rhs
+    return rules
 
-    :param file_path: Ruta a l'arxiu d'entrada.
-    :return: Una llista de tuples, cadascuna contenint un diccionari de gramàtica i una llista de paraules.
-    """
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-
-    grammars = []
-    current_grammar = {}
-    current_words = []
-    reading_grammar = True
-
-    for line in lines:
-        line = line.strip()
-        if line.startswith("#") or not line:
-            continue
-        if line[0].isdigit() and line[1] == '.':
-            # Inici d'una nova secció de gramàtica
-            if current_grammar:
-                grammars.append((current_grammar, current_words))
-                current_grammar = {}
-                current_words = []
-            reading_grammar = True
-        elif reading_grammar:
-            if '->' in line:
-                lhs, rhs = line.split(" -> ")  # lhs: costat esquerre, rhs: costat dret
-                productions = rhs.split(" | ")
-                if lhs not in current_grammar:
-                    current_grammar[lhs] = []
-                for production in productions:
-                    current_grammar[lhs].append(production.split())
-            else:
-                reading_grammar = False
-                current_words.append(line)
-        else:
-            current_words.append(line)
-
-    if current_grammar:
-        grammars.append((current_grammar, current_words))
-    
-    return grammars
-
-def cky(grammar, word):
-    """
-    Implementa l'algoritme CKY per determinar si una paraula pertany al llenguatge d'una gramàtica donada.
-    
-    :param grammar: Un diccionari que representa la CFG en CNF.
-    :param word: Una cadena que representa la paraula a verificar.
-    :return: True si la paraula pertany al llenguatge, False altrament.
-    """
+def cky_algorithm(grammar, word):
+    rules = parse_grammar(grammar)
     n = len(word)
-    if n == 0:
-        return False
-
-    # Inicialitza la taula
     table = [[set() for _ in range(n)] for _ in range(n)]
+    
+    for j in range(1, n + 1):
+        for lhs, rhs_list in rules.items():
+            for rhs in rhs_list:
+                if rhs == word[j-1]:
+                    table[j-1][j-1].add(lhs)
+        for i in range(j-2, -1, -1):
+            for k in range(i+1, j):
+                for lhs, rhs_list in rules.items():
+                    for rhs in rhs_list:
+                        if len(rhs) == 2 and rhs[0] in table[i][k-1] and rhs[1] in table[k][j-1]:
+                            table[i][j-1].add(lhs)
+    
+    return 'S' in table[0][n-1]
 
-    pass
+# Ejemplo de uso
+grammar = [
+    "S -> a | XA | AX | b",
+    "A -> RB",
+    "B -> AX | b | a",
+    "X -> a",
+    "R -> XB",
+]
+words = ["a", "b", "aa", "ab", "ba", "abaa"]
+for word in words:
+    print(cky_algorithm(grammar, word)) 
 
-# Programa principal
-file_path = 'test_cases.txt'
-grammars = read_input(file_path)
+print()
+grammar2 = [
+    "S -> AB | CD | CB | SS",
+    "A -> BC | a",
+    "B -> SC | b",
+    "C -> DD | b",
+    "D -> BA"
+]
 
-# Quan cky() funcioni, descomentar això:
-'''for i, (grammar, words) in enumerate(grammars):
-    print(f"Gramàtica G{i+1}")
-    for word in words:
-        result = cky(grammar, word)
-        print(f"Paraula: {word}, pertany al llenguatge: {result}")
-    print()
-'''
+words2 = ["ab", "ba", "aabb", "abab", "baba"]
+
+for word in words2:
+    print(cky_algorithm(grammar2, word))
