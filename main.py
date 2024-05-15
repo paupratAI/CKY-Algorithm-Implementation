@@ -34,18 +34,18 @@ def cky_algorithm(grammar, word):
     table = [[set() for _ in range(n)] for _ in range(n)]
     
     # Fill the diagonal of the table
-    for j in range(1, n + 1):
+    for j in range(n):
         for lhs, rhs_list in rules.items():
             for rhs in rhs_list:
-                if rhs == word[j-1]:
-                    table[j-1][j-1].add(lhs)
+                if rhs == word[j]:
+                    table[j][j].add(lhs)
         # Fill the table
-        for i in range(j-2, -1, -1):
-            for k in range(i+1, j):
+        for i in range(j-1, -1, -1):
+            for k in range(i+1, j+1):
                 for lhs, rhs_list in rules.items():
                     for rhs in rhs_list:
-                        if len(rhs) == 2 and rhs[0] in table[i][k-1] and rhs[1] in table[k][j-1]:
-                            table[i][j-1].add(lhs)
+                        if len(rhs) == 2 and rhs[0] in table[i][k-1] and rhs[1] in table[k][j]:
+                            table[i][j].add(lhs)
     
     return 'S' in table[0][n-1]
 
