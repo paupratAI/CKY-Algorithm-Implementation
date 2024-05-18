@@ -23,9 +23,8 @@ def transform_to_FNC(grammar):
                 return False
         return True
     
-    def non_binary_rules(grammar): # Transforms non-binary rules into binary rules.
+    def non_binary_rules(grammar, non_terminal_id = 0): # Transforms non-binary rules into binary rules.
         new_grammar = []
-        non_terminal_id = 0
         
         for rule in grammar:
             lhs, rhs_parts = split_rule(rule)
@@ -37,7 +36,7 @@ def transform_to_FNC(grammar):
                 new_grammar.append(f'{lhs} -> {symbol1} | Y{non_terminal_id}')
                 new_grammar.append(f'Y{non_terminal_id} -> {" | ".join(rhs_parts[1:])}')
                 non_terminal_id += 1
-        return new_grammar
+        return new_grammar, non_terminal_id
 
     def hybrid_and_unitary_rules(grammar): # Transforms hybrid and unitary rules into CNF.
         new_rules = []
@@ -68,32 +67,34 @@ def transform_to_FNC(grammar):
             
             # Unitary rule
             elif len(rhs_parts) == 1: # Just 1 rhs
-                symbol = rhs_parts[0]      
-                if symbol.islower(): # terminal
-                    if symbol not in terminals_used:
-                        new_rules.append(f'{lhs} -> {symbol}')
-                else: # non terminal
-                    if len(rules[symbol]) == 1: # REGLA UNITARIA
-                        terminal_symbol = rules[symbol][0]
-                        new_rules.append(f'{lhs} -> {terminal_symbol}')
-                        terminals_used.add(terminal_symbol)
-                    else:
-                        new_rules.append(f'{lhs} -> {symbol}')
-                        new_rules.append(f'{symbol} -> {rules[symbol]}')
+                symbols = rhs_parts[0]      
+                for symbol in symbols:
+                    if symbol.islower(): # terminal
+                        if symbol not in terminals_used:
+                            new_rules.append(f'{lhs} -> {symbol}')
+                    else: # non terminal
+                        if len(rules[symbol]) == 1: # REGLA UNITARIA
+                            terminal_symbol = rules[symbol][0]
+                            new_rules.append(f'{lhs} -> {terminal_symbol}')
+                            terminals_used.add(terminal_symbol)
+                        else:
+                            new_rules.append(f'{lhs} -> {symbol}')
+                            new_rules.append(f'{symbol} -> {rules[symbol]}')
         return new_rules
 
     new_grammar = grammar.copy()
 
     # Transform non-binary rules into binary rules
+    id = 0
     while not non_binary_rules_completed(new_grammar):
-        new_grammar = non_binary_rules(new_grammar)
+        new_grammar, id = non_binary_rules(new_grammar, id)
 
     # Transform hybrid and unitary rules into Chomsky Normal Form
-    grammar_fnc = hybrid_and_unitary_rules(new_grammar)
-    return grammar_fnc
+    new_grammar = hybrid_and_unitary_rules(new_grammar)
+    return new_grammar
 
 grammar = [
-    'S -> A | V',
+    'S -> A | V | W',
     'A -> b | C',
     'B -> D | e',
     'C -> Z',
