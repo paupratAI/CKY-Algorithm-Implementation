@@ -1,6 +1,11 @@
+### Arxiu per provar que va bé la funció transform_to_FNC.
+### Un cop acabatt s'haurà de posar al main.py.
+
+from main import parse_grammar
+
 def transform_to_FNC(grammar):
     """
-    Transforms a grammar into Chomsky Normal Form, focusing on hybrid rules.
+    Transforms a grammar into Chomsky Normal Form.
     
     Args:
     grammar (list of str): A list of grammar rules.
@@ -38,7 +43,8 @@ def transform_to_FNC(grammar):
 grammar = [
     'S -> A | V',
     'A -> b | C',
-    'B -> D | e'
+    'B -> D | e',
+    'C -> x | y',
 ]
 
 fnc_grammar = transform_to_FNC(grammar)
