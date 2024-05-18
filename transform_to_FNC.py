@@ -67,8 +67,8 @@ def transform_to_FNC(grammar):
             
             # Unitary rule
             elif len(rhs_parts) == 1: # Just 1 rhs
-                symbols = rhs_parts[0]      
-                for symbol in symbols:
+                symbol = rhs_parts[0]   
+                if len(symbol) == 1: # It's a unitary rule
                     if symbol.islower(): # terminal
                         if symbol not in terminals_used:
                             new_rules.append(f'{lhs} -> {symbol}')
@@ -80,6 +80,8 @@ def transform_to_FNC(grammar):
                         else:
                             new_rules.append(f'{lhs} -> {symbol}')
                             new_rules.append(f'{symbol} -> {rules[symbol]}')
+                else:
+                    new_rules.append(f'{lhs} -> {symbol}')
         return new_rules
 
     new_grammar = grammar.copy()
@@ -87,13 +89,22 @@ def transform_to_FNC(grammar):
     # Transform non-binary rules into binary rules
     id = 0
     while not non_binary_rules_completed(new_grammar):
-        new_grammar, id = non_binary_rules(new_grammar, id)
+        new_grammar, new_id = non_binary_rules(new_grammar, id)
+        id = new_id
 
     # Transform hybrid and unitary rules into Chomsky Normal Form
     new_grammar = hybrid_and_unitary_rules(new_grammar)
     return new_grammar
 
-grammar = [
+grammar1 = [
+    "S -> a | xA | AX | b",
+    "A -> RB", 
+    "B -> AX | b | a",
+    "X -> a",
+    "R -> XB" 
+]
+
+grammar2 = [
     'S -> A | V | W',
     'A -> b | C',
     'B -> D | e',
@@ -103,6 +114,12 @@ grammar = [
     'Q -> R | S | T | U',
 ]
 
-fnc_grammar = transform_to_FNC(grammar)
+fnc_grammar = transform_to_FNC(grammar1)
+for rule in fnc_grammar:
+    print(rule)
+
+print()
+
+fnc_grammar = transform_to_FNC(grammar2)
 for rule in fnc_grammar:
     print(rule)
