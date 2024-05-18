@@ -1,4 +1,4 @@
-### EXTENSIÓ 1 - Transformar la gramàtica a la forma normal de Chomsky (FNC)
+### EXTENSION 1 - Transform the grammar to Chomsky Normal Form (CNF)
 from main import parse_grammar
 
 def transform_to_FNC(grammar):
@@ -11,12 +11,19 @@ def transform_to_FNC(grammar):
     Returns:
     list of str: The grammar in Chomsky Normal Form.
     """
-    def split_rule(rule):
+    def split_rule(rule): # Splits a rule into its left-hand side and right-hand side parts.
         lhs, rhs = rule.split(' -> ')
         rhs_parts = rhs.split(' | ')
         return lhs, rhs_parts
 
-    def non_binary_rules(grammar):
+    def non_binary_rules_completed(grammar): # Checks if all rules in the grammar are binary.
+        for rule in grammar:
+            lhs, rhs_parts = split_rule(rule)
+            if len(rhs_parts) > 2:
+                return False
+        return True
+    
+    def non_binary_rules(grammar): # Transforms non-binary rules into binary rules.
         new_grammar = []
         non_terminal_id = 0
         
@@ -26,21 +33,13 @@ def transform_to_FNC(grammar):
             if len(rhs_parts) <= 2:
                 new_grammar.append(rule)
             else:
-                symbol1, symbol2, symbol3 = rhs_parts[0], rhs_parts[1], rhs_parts[2]
+                symbol1= rhs_parts[0]
                 new_grammar.append(f'{lhs} -> {symbol1} | Y{non_terminal_id}')
-                new_grammar.append(f'Y{non_terminal_id} -> {symbol2} | {symbol3}')
+                new_grammar.append(f'Y{non_terminal_id} -> {" | ".join(rhs_parts[1:])}')
                 non_terminal_id += 1
-                '''while len(rhs_parts) > 2:
-                    new_non_terminal = f'Y{non_terminal_id}'
-                    new_grammar.append(f'{lhs} -> {rhs_parts[0]} | {new_non_terminal}')
-                    lhs = new_non_terminal
-                    rhs_parts = rhs_parts[1:]
-                    non_terminal_id += 1
-                new_grammar.append(f'{lhs} -> {" | ".join(rhs_parts)}')'''
-
         return new_grammar
 
-    def hybrid_and_unitary_rules(grammar):
+    def hybrid_and_unitary_rules(grammar): # Transforms hybrid and unitary rules into CNF.
         new_rules = []
         non_terminal_id = 0
         terminal_to_nonterminal = {}
@@ -50,7 +49,8 @@ def transform_to_FNC(grammar):
         for rule in grammar:
             lhs, rhs_parts = split_rule(rule)
 
-            if len(rhs_parts) == 2: # REGLA HIBRIDA
+            # Hybrid rule
+            if len(rhs_parts) == 2: 
                 new_rhs_parts = []
                 for symbol in rhs_parts:
                     new_part = []
@@ -65,9 +65,10 @@ def transform_to_FNC(grammar):
                         new_part.append(symbol)
                     new_rhs_parts.append(''.join(new_part))
                 new_rules.append(f'{lhs} -> {" | ".join(new_rhs_parts)}')
+            
+            # Unitary rule
             elif len(rhs_parts) == 1: # Just 1 rhs
-                symbol = rhs_parts[0]
-                
+                symbol = rhs_parts[0]      
                 if symbol.islower(): # terminal
                     if symbol not in terminals_used:
                         new_rules.append(f'{lhs} -> {symbol}')
@@ -79,14 +80,17 @@ def transform_to_FNC(grammar):
                     else:
                         new_rules.append(f'{lhs} -> {symbol}')
                         new_rules.append(f'{symbol} -> {rules[symbol]}')
-
         return new_rules
 
+    new_grammar = grammar.copy()
 
-    new_grammar = non_binary_rules(grammar)
+    # Transform non-binary rules into binary rules
+    while not non_binary_rules_completed(new_grammar):
+        new_grammar = non_binary_rules(new_grammar)
+
+    # Transform hybrid and unitary rules into Chomsky Normal Form
     grammar_fnc = hybrid_and_unitary_rules(new_grammar)
     return grammar_fnc
-
 
 grammar = [
     'S -> A | V',
@@ -94,7 +98,8 @@ grammar = [
     'B -> D | e',
     'C -> Z',
     'Z -> z',
-    'M -> N | O | P'
+    'M -> N | O | P',
+    'Q -> R | S | T | U',
 ]
 
 fnc_grammar = transform_to_FNC(grammar)
