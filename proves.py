@@ -16,15 +16,24 @@ def transform_to_FNC(grammar):
     new_rules = []
     terminal_to_nonterminal = {}
     next_nonterminal_id = 0
-    rules = parse_grammar(grammar)
-    terminals_used = set()
+    rules = parse_grammar(grammar) # diccionari amb les regles de la gramàtica (REGLA UNITARIA)
+    terminals_used = set() # set per emmagatzemar les terminals que ja s'han utilitzat (REGLA UNITARIA)
+
+    for rule in grammar: # REGLA NO BINARIA
+        lhs, rhs = rule.split(' -> ')
+        rhs_parts = rhs.split(' | ')
+
+        if len(rhs_parts) <= 2:
+            continue
+        else:
+            pass
 
     for rule in grammar:
         lhs, rhs = rule.split(' -> ')
         rhs_parts = rhs.split(' | ')
-        new_rhs_parts = []
 
-        if len(rhs_parts) > 1: # REGLA HÍBRIDA
+        if len(rhs_parts) == 2: # REGLA HÍBRIDA
+            new_rhs_parts = []
             for symbol in rhs_parts:
                 new_part = []
                 if symbol.islower():  # It's a terminal
@@ -37,7 +46,6 @@ def transform_to_FNC(grammar):
                 else:  # It's a non-terminal
                     new_part.append(symbol)
                 new_rhs_parts.append(''.join(new_part))
-
             new_rules.append(f'{lhs} -> {" | ".join(new_rhs_parts)}')
         else: # Just 1 rhs
             symbol = rhs_parts[0]

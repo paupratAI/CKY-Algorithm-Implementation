@@ -1,5 +1,4 @@
-### Arxiu per provar que va bé la funció transform_to_FNC.
-### Un cop acabat s'haurà de posar al main.py.
+### EXTENSIÓ 1 - Transformar la gramàtica a la forma normal de Chomsky
 
 from main import parse_grammar
 
