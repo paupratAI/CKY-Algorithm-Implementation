@@ -1,6 +1,4 @@
-### EXTENSIÓ 1 - Transformar la gramàtica a la forma normal de Chomsky (FNC)
 from main import parse_grammar
-
 def transform_to_FNC(grammar):
     """
     Transforms a grammar into Chomsky Normal Form.
@@ -87,14 +85,14 @@ def transform_to_FNC(grammar):
     grammar_fnc = hybrid_and_unitary_rules(new_grammar)
     return grammar_fnc
 
-
 grammar = [
     'S -> A | V',
     'A -> b | C',
     'B -> D | e',
     'C -> Z',
     'Z -> z',
-    'M -> N | O | P'
+    'M -> N | O | P',
+    'Q -> R | S | T ',
 ]
 
 fnc_grammar = transform_to_FNC(grammar)
