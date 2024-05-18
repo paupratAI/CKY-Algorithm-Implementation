@@ -1,17 +1,21 @@
 Grammar:
-S -> a | xA | AX | b
+F -> a
+S -> F | C
+C -> xA | E
+G -> b
+E -> AX | G
 A -> RB
-B -> AX | b | a
+B -> AX | D
+D -> G | F
 X -> a
 R -> XB
-The grammar is NOT in CNF.
 Results:
-a: True
-b: True
+a: False
+b: False
 aa: False
 ab: False
 ba: False
-abaa: True
+abaa: False
 
 Grammar:
 S -> AB | CD | CB | SS
@@ -19,7 +23,6 @@ A -> BC | a
 B -> SC | b
 C -> DD | b
 D -> BA
-The grammar is in CNF.
 Results:
 ab: True
 ba: False

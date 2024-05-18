@@ -23,9 +23,20 @@ def transform_to_FNC(grammar):
                 return False
         return True
     
-    def non_binary_rules(grammar, non_terminal_id = 0): # Transforms non-binary rules into binary rules.
+    def get_unique_nonterminal(existing_nonterminals):
+        for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            if letter not in existing_nonterminals:
+                existing_nonterminals.add(letter)
+                return letter, existing_nonterminals
+        raise ValueError("Ran out of unique non-terminal symbols")
+    
+    def non_binary_rules(grammar, existing_nonterminals): # Transforms non-binary rules into binary rules.
         new_grammar = []
         
+        for rule in grammar:
+            lhs, rhs_parts = split_rule(rule)
+            existing_nonterminals.add(lhs)
+
         for rule in grammar:
             lhs, rhs_parts = split_rule(rule)
 
@@ -33,12 +44,12 @@ def transform_to_FNC(grammar):
                 new_grammar.append(rule)
             else:
                 symbol1= rhs_parts[0]
-                new_grammar.append(f'{lhs} -> {symbol1} | Y{non_terminal_id}')
-                new_grammar.append(f'Y{non_terminal_id} -> {" | ".join(rhs_parts[1:])}')
-                non_terminal_id += 1
-        return new_grammar, non_terminal_id
+                symbol2, existing_nonterminals = get_unique_nonterminal(existing_nonterminals)
+                new_grammar.append(f'{lhs} -> {symbol1} | {symbol2}')
+                new_grammar.append(f'{symbol2} -> {" | ".join(rhs_parts[1:])}')
+        return new_grammar, existing_nonterminals
 
-    def hybrid_and_unitary_rules(grammar): # Transforms hybrid and unitary rules into CNF.
+    def hybrid_and_unitary_rules(grammar, existing_nonterminals): # Transforms hybrid and unitary rules into CNF.
         new_rules = []
         non_terminal_id = 0
         terminal_to_nonterminal = {}
@@ -47,7 +58,11 @@ def transform_to_FNC(grammar):
 
         for rule in grammar:
             lhs, rhs_parts = split_rule(rule)
+            existing_nonterminals.add(lhs)
 
+        for rule in grammar:
+            lhs, rhs_parts = split_rule(rule)
+            
             # Hybrid rule
             if len(rhs_parts) == 2: 
                 new_rhs_parts = []
@@ -55,7 +70,7 @@ def transform_to_FNC(grammar):
                     new_part = []
                     if symbol.islower():  # It's a terminal
                         if symbol not in terminal_to_nonterminal:
-                            new_nonterminal = f'X{non_terminal_id}'
+                            new_nonterminal, existing_nonterminals  = get_unique_nonterminal(existing_nonterminals)
                             terminal_to_nonterminal[symbol] = new_nonterminal
                             new_rules.append(f'{new_nonterminal} -> {symbol}')
                             non_terminal_id += 1
@@ -87,13 +102,12 @@ def transform_to_FNC(grammar):
     new_grammar = grammar.copy()
 
     # Transform non-binary rules into binary rules
-    id = 0
+    existing_nonterminals = set()
     while not non_binary_rules_completed(new_grammar):
-        new_grammar, new_id = non_binary_rules(new_grammar, id)
-        id = new_id
+        new_grammar, existing_nonterminals = non_binary_rules(new_grammar, existing_nonterminals)
 
     # Transform hybrid and unitary rules into Chomsky Normal Form
-    new_grammar = hybrid_and_unitary_rules(new_grammar)
+    new_grammar = hybrid_and_unitary_rules(new_grammar, existing_nonterminals)
     return new_grammar
 
 grammar1 = [

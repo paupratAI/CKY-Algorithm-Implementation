@@ -129,6 +129,115 @@ def write_output_file(output_path, grammars_and_words):
                 file.write(f"{word}: {result}\n")
             file.write("\n")
 
+def transform_to_CNF(grammar):
+    """
+    Transforms a grammar into Chomsky Normal Form.
+    
+    Args:
+    grammar (list of str): A list of grammar rules.
+    
+    Returns:
+    list of str: The grammar in Chomsky Normal Form.
+    """
+    def split_rule(rule): # Splits a rule into its left-hand side and right-hand side parts.
+        lhs, rhs = rule.split(' -> ')
+        rhs_parts = rhs.split(' | ')
+        return lhs, rhs_parts
+
+    def non_binary_rules_completed(grammar): # Checks if all rules in the grammar are binary.
+        for rule in grammar:
+            lhs, rhs_parts = split_rule(rule)
+            if len(rhs_parts) > 2:
+                return False
+        return True
+    
+    def get_unique_nonterminal(existing_nonterminals):
+        for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            if letter not in existing_nonterminals:
+                existing_nonterminals.add(letter)
+                return letter, existing_nonterminals
+        raise ValueError("Ran out of unique non-terminal symbols")
+    
+    def non_binary_rules(grammar, existing_nonterminals): # Transforms non-binary rules into binary rules.
+        new_grammar = []
+        
+        for rule in grammar:
+            lhs, rhs_parts = split_rule(rule)
+            existing_nonterminals.add(lhs)
+
+        for rule in grammar:
+            lhs, rhs_parts = split_rule(rule)
+
+            if len(rhs_parts) <= 2:
+                new_grammar.append(rule)
+            else:
+                symbol1= rhs_parts[0]
+                symbol2, existing_nonterminals = get_unique_nonterminal(existing_nonterminals)
+                new_grammar.append(f'{lhs} -> {symbol1} | {symbol2}')
+                new_grammar.append(f'{symbol2} -> {" | ".join(rhs_parts[1:])}')
+        return new_grammar, existing_nonterminals
+
+    def hybrid_and_unitary_rules(grammar, existing_nonterminals): # Transforms hybrid and unitary rules into CNF.
+        new_rules = []
+        non_terminal_id = 0
+        terminal_to_nonterminal = {}
+        rules = parse_grammar(grammar)
+        terminals_used = set()
+
+        for rule in grammar:
+            lhs, rhs_parts = split_rule(rule)
+            existing_nonterminals.add(lhs)
+
+        for rule in grammar:
+            lhs, rhs_parts = split_rule(rule)
+            
+            # Hybrid rule
+            if len(rhs_parts) == 2: 
+                new_rhs_parts = []
+                for symbol in rhs_parts:
+                    new_part = []
+                    if symbol.islower():  # It's a terminal
+                        if symbol not in terminal_to_nonterminal:
+                            new_nonterminal, existing_nonterminals  = get_unique_nonterminal(existing_nonterminals)
+                            terminal_to_nonterminal[symbol] = new_nonterminal
+                            new_rules.append(f'{new_nonterminal} -> {symbol}')
+                            non_terminal_id += 1
+                        new_part.append(terminal_to_nonterminal[symbol])
+                    else:  # It's a non-terminal
+                        new_part.append(symbol)
+                    new_rhs_parts.append(''.join(new_part))
+                new_rules.append(f'{lhs} -> {" | ".join(new_rhs_parts)}')
+            
+            # Unitary rule
+            elif len(rhs_parts) == 1: # Just 1 rhs
+                symbol = rhs_parts[0]   
+                if len(symbol) == 1: # It's a unitary rule
+                    if symbol.islower(): # terminal
+                        if symbol not in terminals_used:
+                            new_rules.append(f'{lhs} -> {symbol}')
+                    else: # non terminal
+                        if len(rules[symbol]) == 1: # REGLA UNITARIA
+                            terminal_symbol = rules[symbol][0]
+                            new_rules.append(f'{lhs} -> {terminal_symbol}')
+                            terminals_used.add(terminal_symbol)
+                        else:
+                            new_rules.append(f'{lhs} -> {symbol}')
+                            new_rules.append(f'{symbol} -> {rules[symbol]}')
+                else:
+                    new_rules.append(f'{lhs} -> {symbol}')
+        return new_rules
+
+    new_grammar = grammar.copy()
+
+    # Transform non-binary rules into binary rules
+    existing_nonterminals = set()
+    while not non_binary_rules_completed(new_grammar):
+        new_grammar, existing_nonterminals = non_binary_rules(new_grammar, existing_nonterminals)
+
+    # Transform hybrid and unitary rules into Chomsky Normal Form
+    new_grammar = hybrid_and_unitary_rules(new_grammar, existing_nonterminals)
+    return new_grammar
+
 def main():
     """
     Main function to read input, check if grammars are in CNF, execute the CKY algorithm, and write the output.
@@ -140,13 +249,12 @@ def main():
     with open(output_file_path, 'w') as file:
         for grammar, words in grammars_and_words:
             file.write("Grammar:\n")
+            if not is_cnf(grammar):
+                file.write("Converted into CNF" + "\n")
+                grammar = transform_to_CNF(grammar)
+                
             for rule in grammar:
                 file.write(rule + "\n")
-            
-            if is_cnf(grammar):
-                file.write("The grammar is in CNF.\n")
-            else:
-                file.write("The grammar is NOT in CNF.\n")
             
             file.write("Results:\n")
             for word in words:
