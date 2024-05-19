@@ -111,11 +111,11 @@ class CFG():
                             added = True
 
 
-
 class CNF():
     def __init__(self, grammar):
         self.grammar = grammar
         self.rules = self.parse_grammar(grammar)
+        self.existing_nonterminals = set(self.rules.keys())
         self.cnf_grammar = self.transform_to_CNF()
     
     def parse_grammar(self, grammar):
@@ -137,19 +137,16 @@ class CNF():
             rules[lhs] = rhs
         return rules
 
-    def get_unique_nonterminal(self, existing_nonterminals):
+    def get_unique_nonterminal(self):
         """
         Generates a unique non-terminal symbol that does not exist in the current set.
-        
-        Args:
-        existing_nonterminals (set): The set of existing non-terminal symbols.
         
         Returns:
         str: A unique non-terminal symbol.
         """
         for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-            if letter not in existing_nonterminals:
-                existing_nonterminals.add(letter)
+            if letter not in self.existing_nonterminals:
+                self.existing_nonterminals.add(letter)
                 return letter
         raise ValueError("Ran out of unique non-terminal symbols")
 
@@ -247,7 +244,6 @@ class CNF():
         rules = self.rules
         new_rules = {}
         terminal_to_var = {}
-        existing_nonterminals = set(rules.keys())
 
         for lhs, rhs_list in rules.items():
             new_rhs_list = []
@@ -257,7 +253,7 @@ class CNF():
                     for symbol in rhs:
                         if symbol.islower():  # If it's a terminal
                             if symbol not in terminal_to_var:
-                                new_var = self.get_unique_nonterminal(existing_nonterminals)
+                                new_var = self.get_unique_nonterminal()
                                 terminal_to_var[symbol] = new_var
                                 if new_var not in new_rules:
                                     new_rules[new_var] = [symbol]
@@ -271,7 +267,13 @@ class CNF():
                 new_rules[lhs] = []
             new_rules[lhs].extend(new_rhs_list)
 
+        # Ensure 'S' is the first key in the new_rules dictionary
+        if 'S' in new_rules:
+            s_rules = new_rules.pop('S')
+            new_rules = {'S': s_rules, **new_rules}
+
         self.rules = new_rules
+
 
     def non_binary_rule(self):
         """
@@ -282,13 +284,12 @@ class CNF():
         """
         rules = self.rules
         new_rules = {}
-        existing_nonterminals = set(rules.keys())
 
         for lhs, rhs_list in rules.items():
             new_rhs_list = []
             for rhs in rhs_list:
                 while len(rhs) > 2:
-                    new_var = self.get_unique_nonterminal(existing_nonterminals)
+                    new_var = self.get_unique_nonterminal()
                     new_rules[new_var] = [rhs[-2:]]
                     rhs = rhs[:-2] + new_var
                 new_rhs_list.append(rhs)
@@ -308,7 +309,6 @@ class CNF():
         for rhs_list in self.rules.values():
             for rhs in rhs_list:
                 non_terminals = [symbol for symbol in rhs if symbol.isupper()]
-                print(f"non_terminals: {non_terminals}")
                 if len(non_terminals) > 2:
                     return False
         return True
@@ -320,16 +320,11 @@ class CNF():
         Returns:
         dict: The CNF grammar rules.
         """
-        print(self.rules)
         self.remove_null_productions()
-        print(self.rules)
         self.unitary_rule()
-        print(self.rules)
         self.hybrid_rule()
-        print(self.rules)
         while not self.is_binary():
             self.non_binary_rule()
-            print(self.rules)
         return self.rules
 
     def get_cnf_grammar(self):
@@ -339,7 +334,7 @@ class CNF():
 grammar = [
     "S -> a | aA | B",
     "A -> aBB | ",
-    "B -> Aa | b"
+    "B -> Aa | b"  
 ]
 
 cfg = CFG(grammar)
@@ -352,12 +347,4 @@ if not cfg.is_cnf:
 else:
     print("It's already in Chomsky Normal Form (CNF).")
 
-#print(cfg.cky_algorithm("abababbaaa"))
-    
-'''
-S → a | XA | AX | b  
-A → RB  
-B → AX | b | a  
-X → a  
-R → XB 
-'''
+print(cnf.cky_algorithm("aaba"))
