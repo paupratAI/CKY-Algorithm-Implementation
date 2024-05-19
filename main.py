@@ -29,20 +29,20 @@ def is_cnf(grammar):
     """
     rules = parse_grammar(grammar)
     for lhs, rhs_list in rules.items():
-        for rhs in rhs_list:
-            # Rule must be of the form X -> Y1Y2 or X -> a
-            if len(rhs) == 1:
-                # Single terminal symbol (must be lowercase)
-                if not rhs.islower():  # rhs is a single terminal
+        if len(rhs_list) == 1:
+            # Single terminal symbol (must be lowercase)
+            if len(rhs_list[0]) == 1:
+                if not rhs_list[0].islower():  # rhs is a single terminal
                     return False
-            elif len(rhs) == 2:
-                # Two non-terminal symbols (must be uppercase)
-                if not (rhs[0].isupper() and rhs[1].isupper()):
-                    return False
-            else:
+        elif len(rhs_list) == 2:
+            # Two symbols (one must be a terminal and the other a non-terminal)
+            is_first_upper = any(char.isupper() for char in rhs_list[0])
+            is_second_upper = any(char.isupper() for char in rhs_list[1])
+            if (rhs_list[0].islower() and is_second_upper) or (rhs_list[1].islower() and is_first_upper):
                 return False
-    return True
-
+        else:
+            return False  # If there are more than 2 symbols on the right hand side, it's not CNF
+    return True  # If all checks passed, it's CNF
 
 def cky_algorithm(grammar, word):
     """
@@ -66,13 +66,40 @@ def cky_algorithm(grammar, word):
             for rhs in rhs_list:
                 if rhs == word[j]:
                     table[j][j].add(lhs)
-        # Fill the table
-        for i in range(j-1, -1, -1):
-            for k in range(i+1, j+1):
+        
+        # Handle unit productions
+        added = True
+        while added:
+            added = False
+            for lhs, rhs_list in rules.items():
+                for rhs in rhs_list:
+                    if len(rhs) == 1 and rhs in table[j][j]:
+                        if lhs not in table[j][j]:
+                            table[j][j].add(lhs)
+                            added = True
+    
+    # Fill the rest of the table
+    for span in range(2, n + 1):  # span length
+        for i in range(n - span + 1):
+            j = i + span - 1
+            for k in range(i, j):
                 for lhs, rhs_list in rules.items():
                     for rhs in rhs_list:
-                        if len(rhs) == 2 and rhs[0] in table[i][k-1] and rhs[1] in table[k][j]:
-                            table[i][j].add(lhs)
+                        if len(rhs) == 2:
+                            B, C = rhs
+                            if B in table[i][k] and C in table[k + 1][j]:
+                                table[i][j].add(lhs)
+            
+            # Handle unit productions
+            added = True
+            while added:
+                added = False
+                for lhs, rhs_list in rules.items():
+                    for rhs in rhs_list:
+                        if len(rhs) == 1 and rhs in table[i][j]:
+                            if lhs not in table[i][j]:
+                                table[i][j].add(lhs)
+                                added = True
     
     return 'S' in table[0][n-1]
 

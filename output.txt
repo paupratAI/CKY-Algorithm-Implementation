@@ -1,4 +1,5 @@
 Grammar:
+Converted into CNF
 F -> a
 S -> F | C
 C -> xA | E
@@ -10,18 +11,23 @@ D -> G | F
 X -> a
 R -> XB
 Results:
-a: False
-b: False
+a: True
+b: True
 aa: False
 ab: False
 ba: False
-abaa: False
+abaa: True
 
 Grammar:
-S -> AB | CD | CB | SS
-A -> BC | a
-B -> SC | b
-C -> DD | b
+Converted into CNF
+S -> AB | E
+E -> CD | F
+F -> CB | SS
+G -> a
+A -> BC | G
+H -> b
+B -> SC | H
+C -> DD | H
 D -> BA
 Results:
 ab: True
