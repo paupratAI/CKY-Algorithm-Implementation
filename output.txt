@@ -1,9 +1,11 @@
+==================================================
 Grammar:
 S -> a | XA | AX | b
 A -> RB
 B -> AX | b | a
 X -> a
 R -> XB
+
 Results:
 a: True
 b: True
@@ -12,12 +14,14 @@ ab: False
 ba: False
 abaa: True
 
+==================================================
 Grammar:
 S -> AB | CD | CB | SS
 A -> BC | a
 B -> SC | b
 C -> DD | b
 D -> BA
+
 Results:
 ab: True
 ba: False
@@ -25,3 +29,4 @@ aabb: True
 abab: True
 baba: False
 
+==================================================
