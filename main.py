@@ -70,16 +70,8 @@ class CFG():
                     if rhs == word[j]:
                         table[j][j].add(lhs)
 
-            # Handle unit productions
-            added = True
-            while added:
-                added = False
-                for lhs, rhs_list in rules.items():
-                    for rhs in rhs_list:
-                        if len(rhs) == 1 and rhs in table[j][j]:
-                            if lhs not in table[j][j]:
-                                table[j][j].add(lhs)
-                                added = True
+            # Handle unit productions for the diagonal
+            self.handle_unit_productions(j, j, table)
 
         # Fill the rest of the table
         for span in range(2, n + 1):
@@ -93,18 +85,31 @@ class CFG():
                                 if B in table[i][k] and C in table[k + 1][j]:
                                     table[i][j].add(lhs)
 
-                # Handle unit productions
-                added = True
-                while added:
-                    added = False
-                    for lhs, rhs_list in rules.items():
-                        for rhs in rhs_list:
-                            if len(rhs) == 1 and rhs in table[i][j]:
-                                if lhs not in table[i][j]:
-                                    table[i][j].add(lhs)
-                                    added = True
-        
+                # Handle unit productions for the current cell
+                self.handle_unit_productions(i, j, table)
+
         return 'S' in table[0][n-1]
+
+    def handle_unit_productions(self, i, j, table):
+        """
+        Handles the addition of unit productions in the CKY table.
+
+        Args:
+        i (int): The row index in the CKY table.
+        j (int): The column index in the CKY table.
+        table (list of list of set): The CKY table.
+        """
+        rules = self.rules
+        added = True
+        while added:
+            added = False
+            for lhs, rhs_list in rules.items():
+                for rhs in rhs_list:
+                    if len(rhs) == 1 and rhs in table[i][j]:
+                        if lhs not in table[i][j]:
+                            table[i][j].add(lhs)
+                            added = True
+
 
 
 class CNF():
@@ -137,7 +142,7 @@ class CNF():
         Removes null productions from the grammar.
         
         Returns:
-        dict: The updated grammar rules without epsilon productions.
+        dict: The updated grammar rules without null productions.
         """
         rules = self.rules
         nullable = set()
@@ -158,7 +163,7 @@ class CNF():
                             nullable.add(lhs)
                             changed = True
 
-        # Step 2: Remove epsilon productions and add new rules
+        # Step 2: Remove null productions and add new rules
         new_rules = {}
         for lhs, rhs_list in rules.items():
             new_rhs_list = set()
@@ -303,9 +308,11 @@ class CNF():
 
 
 grammar = [
-    "S -> a | aA | B",
-    "A -> aBB | ",
-    "B -> Aa | b "
+    "S -> a | XA | AX | b",
+    "A -> RB",
+    "B -> AX | b | a",
+    "X -> a",
+    "R -> XB"
 ]
 
 cfg = CFG(grammar)
@@ -318,6 +325,7 @@ if not cfg.is_cnf:
 else:
     print("It's already in Chomsky Normal Form (CNF).")
 
+print(cfg.cky_algorithm("abababbaaa"))
 
 '''
     def transform_to_CNF(self):
