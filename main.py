@@ -44,16 +44,55 @@ def write_output_file(output_path, results):
     """
     with open(output_path, 'w') as file:
         file.write("=" * 50 + "\n")
-        for grammar, words_results in results:
-            file.write("Grammar:\n")
-            for rule in grammar:
-                file.write(rule + "\n")
-            file.write("\n")
-            file.write("Results:\n")
-            for word, result in words_results:
-                file.write(f"{word}: {'True' if result else 'False'}\n")
-            file.write("\n")
-            file.write("=" * 50 + "\n")
+        for result in results:
+
+            if len(result) == 2:
+                grammar, words_results = result
+                for rule in grammar:
+                    file.write(rule + "\n")
+                file.write("\n")
+                file.write("Grammar is in CNF\n")
+
+                file.write("Results:\n")
+                for word, result in words_results:
+                    file.write(f"{word}: {'True' if result else 'False'}\n")
+                file.write("\n")
+                file.write("=" * 50 + "\n")
+            else:
+                grammar, grammar2, words_results = result
+                file.write("Original Grammar:\n")
+                for rule in grammar:
+                    file.write(rule + "\n")
+                file.write("\n")
+                file.write("Grammar is not in CNF\n")
+                file.write("\n")
+
+                file.write("Converted into CNF Grammar:\n")
+                for rule in grammar2:
+                    file.write(rule + "\n")
+                file.write("\n")
+                file.write("Results:\n")
+                for word, result in words_results:
+                    file.write(f"{word}: {'True' if result else 'False'}\n")
+                file.write("\n")
+                file.write("=" * 50 + "\n")
+def unparse_grammar(rules):
+    """
+    Converts the grammar rules from a dictionary to a list of strings.
+    
+    Args:
+    rules (dict): A dictionary where keys are the left-hand side (LHS) of the rules
+                  and values are lists of right-hand side (RHS) alternatives.
+    
+    Returns:
+    list of str: The list of grammar rules in the form "LHS -> RHS".
+    """
+    grammar = []
+    for lhs, rhs in rules.items():
+        rhs = " | ".join(rhs)
+        grammar.append(f"{lhs} -> {rhs}")
+    return grammar
+
 
 def main():
     """
@@ -65,17 +104,23 @@ def main():
     results = []
 
     for grammar, words in grammars_and_words:
+        grammar2 = None
         cfg = CFG(grammar)
         if not cfg.is_cnf:
-            grammar = cfg.cnf_grammar
+            grammar2 = cfg.cnf_grammar
+            grammar2 = unparse_grammar(grammar2)
         
         words_results = []
         for word in words:
             result = cfg.cky_algorithm(word)
             words_results.append((word, result))
         
-        results.append((grammar, words_results))
+        if grammar2 is not None:
+            results.append((grammar, grammar2, words_results))
+        else:
+            results.append((grammar, words_results))
     
+    print(results)
     write_output_file(output_file_path, results)
     print("Output written to 'output.txt'")
 
