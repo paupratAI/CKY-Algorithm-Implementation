@@ -1,13 +1,7 @@
 Grammar:
-Converted into CNF
-F -> a
-S -> F | C
-C -> xA | E
-G -> b
-E -> AX | G
+S -> a | XA | AX | b
 A -> RB
-B -> AX | D
-D -> G | F
+B -> AX | b | a
 X -> a
 R -> XB
 Results:
@@ -19,15 +13,10 @@ ba: False
 abaa: True
 
 Grammar:
-Converted into CNF
-S -> AB | E
-E -> CD | F
-F -> CB | SS
-G -> a
-A -> BC | G
-H -> b
-B -> SC | H
-C -> DD | H
+S -> AB | CD | CB | SS
+A -> BC | a
+B -> SC | b
+C -> DD | b
 D -> BA
 Results:
 ab: True

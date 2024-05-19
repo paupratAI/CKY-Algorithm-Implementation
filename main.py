@@ -29,19 +29,20 @@ def is_cnf(grammar):
     """
     rules = parse_grammar(grammar)
     for lhs, rhs_list in rules.items():
-        if len(rhs_list) == 1:
-            # Single terminal symbol (must be lowercase)
-            if len(rhs_list[0]) == 1:
-                if not rhs_list[0].islower():  # rhs is a single terminal
+        for rhs in rhs_list:
+            if len(rhs) == 1:
+                # Single terminal symbol (must be lowercase)
+                if len(rhs[0]) == 1:
+                    if not rhs[0].islower():  # rhs is a single terminal
+                        return False
+            elif len(rhs) == 2:
+                # Two symbols (one must be a terminal and the other a non-terminal)
+                is_first_upper = any(char.isupper() for char in rhs[0])
+                is_second_upper = any(char.isupper() for char in rhs[1])
+                if (rhs[0].islower() and is_second_upper) or (rhs[1].islower() and is_first_upper):
                     return False
-        elif len(rhs_list) == 2:
-            # Two symbols (one must be a terminal and the other a non-terminal)
-            is_first_upper = any(char.isupper() for char in rhs_list[0])
-            is_second_upper = any(char.isupper() for char in rhs_list[1])
-            if (rhs_list[0].islower() and is_second_upper) or (rhs_list[1].islower() and is_first_upper):
-                return False
-        else:
-            return False  # If there are more than 2 symbols on the right hand side, it's not CNF
+            else:
+                return False  # If there are more than 2 symbols on the right hand side, it's not CNF
     return True  # If all checks passed, it's CNF
 
 def cky_algorithm(grammar, word):
