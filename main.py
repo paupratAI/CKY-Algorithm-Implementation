@@ -137,6 +137,22 @@ class CNF():
             rules[lhs] = rhs
         return rules
 
+    def get_unique_nonterminal(self, existing_nonterminals):
+        """
+        Generates a unique non-terminal symbol that does not exist in the current set.
+        
+        Args:
+        existing_nonterminals (set): The set of existing non-terminal symbols.
+        
+        Returns:
+        str: A unique non-terminal symbol.
+        """
+        for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            if letter not in existing_nonterminals:
+                existing_nonterminals.add(letter)
+                return letter
+        raise ValueError("Ran out of unique non-terminal symbols")
+
     def remove_null_productions(self):
         """
         Removes null productions from the grammar.
@@ -230,8 +246,8 @@ class CNF():
         """
         rules = self.rules
         new_rules = {}
-        new_var_count = 0
         terminal_to_var = {}
+        existing_nonterminals = set(rules.keys())
 
         for lhs, rhs_list in rules.items():
             new_rhs_list = []
@@ -241,8 +257,7 @@ class CNF():
                     for symbol in rhs:
                         if symbol.islower():  # If it's a terminal
                             if symbol not in terminal_to_var:
-                                new_var = f"R{new_var_count}"
-                                new_var_count += 1
+                                new_var = self.get_unique_nonterminal(existing_nonterminals)
                                 terminal_to_var[symbol] = new_var
                                 if new_var not in new_rules:
                                     new_rules[new_var] = [symbol]
@@ -258,7 +273,6 @@ class CNF():
 
         self.rules = new_rules
 
-    
     def non_binary_rule(self):
         """
         Eliminates productions with more than two non-terminals on the RHS.
@@ -266,8 +280,24 @@ class CNF():
         Returns:
         dict: The updated grammar rules with RHS having at most two non-terminals.
         """
-        pass 
-        
+        rules = self.rules
+        new_rules = {}
+        existing_nonterminals = set(rules.keys())
+
+        for lhs, rhs_list in rules.items():
+            new_rhs_list = []
+            for rhs in rhs_list:
+                while len(rhs) > 2:
+                    new_var = self.get_unique_nonterminal(existing_nonterminals)
+                    new_rules[new_var] = [rhs[-2:]]
+                    rhs = rhs[:-2] + new_var
+                new_rhs_list.append(rhs)
+            if lhs not in new_rules:
+                new_rules[lhs] = []
+            new_rules[lhs].extend(new_rhs_list)
+
+        self.rules = new_rules
+
     def is_binary(self):
         """
         Checks if all productions have at most two non-terminal symbols in the RHS.
@@ -278,10 +308,10 @@ class CNF():
         for rhs_list in self.rules.values():
             for rhs in rhs_list:
                 non_terminals = [symbol for symbol in rhs if symbol.isupper()]
+                print(f"non_terminals: {non_terminals}")
                 if len(non_terminals) > 2:
                     return False
         return True
-    
 
     def transform_to_CNF(self):
         """
@@ -300,7 +330,6 @@ class CNF():
         while not self.is_binary():
             self.non_binary_rule()
             print(self.rules)
-        # Further transformation steps will go here
         return self.rules
 
     def get_cnf_grammar(self):
@@ -308,11 +337,9 @@ class CNF():
 
 
 grammar = [
-    "S -> a | XA | AX | b",
-    "A -> RB",
-    "B -> AX | b | a",
-    "X -> a",
-    "R -> XB"
+    "S -> a | aA | B",
+    "A -> aBB | ",
+    "B -> Aa | b"
 ]
 
 cfg = CFG(grammar)
@@ -325,108 +352,12 @@ if not cfg.is_cnf:
 else:
     print("It's already in Chomsky Normal Form (CNF).")
 
-print(cfg.cky_algorithm("abababbaaa"))
-
+#print(cfg.cky_algorithm("abababbaaa"))
+    
 '''
-    def transform_to_CNF(self):
-        """
-        Transforms a grammar into Chomsky Normal Form.
-        
-        Returns:
-        list of str: The grammar in Chomsky Normal Form.
-        """
-        def split_rule(rule):
-            lhs, rhs = rule.split(' -> ')
-            rhs_parts = rhs.split(' | ')
-            return lhs, rhs_parts
-        
-        def non_binary_rules_completed(grammar):
-            for rule in grammar:
-                lhs, rhs_parts = split_rule(rule)
-                if len(rhs_parts) > 2:
-                    return False
-            return True
-        
-        def get_unique_nonterminal(existing_nonterminals):
-            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-                if letter not in existing_nonterminals:
-                    existing_nonterminals.add(letter)
-                    return letter, existing_nonterminals
-            raise ValueError("Ran out of unique non-terminal symbols")
-        
-        def non_binary_rules(grammar, existing_nonterminals):
-            new_grammar = []
-            
-            for rule in grammar:
-                lhs, rhs_parts = split_rule(rule)
-                existing_nonterminals.add(lhs)
-
-            for rule in grammar:
-                lhs, rhs_parts = split_rule(rule)
-
-                if len(rhs_parts) <= 2:
-                    new_grammar.append(rule)
-                else:
-                    symbol1= rhs_parts[0]
-                    symbol2, existing_nonterminals = get_unique_nonterminal(existing_nonterminals)
-                    new_grammar.append(f'{lhs} -> {symbol1} | {symbol2}')
-                    new_grammar.append(f'{symbol2} -> {" | ".join(rhs_parts[1:])}')
-            return new_grammar, existing_nonterminals
-        
-        def hybrid_and_unitary_rules(grammar, existing_nonterminals):
-            new_rules = []
-            non_terminal_id = 0
-            terminal_to_nonterminal = {}
-            rules = self.rules
-            terminals_used = set()
-
-            for rule in grammar:
-                lhs, rhs_parts = split_rule(rule)
-                existing_nonterminals.add(lhs)
-
-            for rule in grammar:
-                lhs, rhs_parts = split_rule(rule)
-                
-                if len(rhs_parts) == 2:
-                    new_rhs_parts = []
-                    for symbol in rhs_parts:
-                        new_part = []
-                        if symbol.islower():
-                            if symbol not in terminal_to_nonterminal:
-                                new_nonterminal, existing_nonterminals  = get_unique_nonterminal(existing_nonterminals)
-                                terminal_to_nonterminal[symbol] = new_nonterminal
-                                new_rules.append(f'{new_nonterminal} -> {symbol}')
-                                non_terminal_id += 1
-                            new_part.append(terminal_to_nonterminal[symbol])
-                        else:
-                            new_part.append(symbol)
-                        new_rhs_parts.append(''.join(new_part))
-                    new_rules.append(f'{lhs} -> {" | ".join(new_rhs_parts)}')
-                
-                elif len(rhs_parts) == 1:
-                    symbol = rhs_parts[0]   
-                    if len(symbol) == 1:
-                        if symbol.islower():
-                            if symbol not in terminals_used:
-                                new_rules.append(f'{lhs} -> {symbol}')
-                        else:
-                            if len(rules[symbol]) == 1:
-                                terminal_symbol = rules[symbol][0]
-                                new_rules.append(f'{lhs} -> {terminal_symbol}')
-                                terminals_used.add(terminal_symbol)
-                            else:
-                                new_rules.append(f'{lhs} -> {symbol}')
-                                new_rules.append(f'{symbol} -> {rules[symbol]}')
-                    else:
-                        new_rules.append(f'{lhs} -> {symbol}')
-            return new_rules
-
-        new_grammar = self.grammar.copy()
-
-        existing_nonterminals = set()
-        while not non_binary_rules_completed(new_grammar):
-            new_grammar, existing_nonterminals = non_binary_rules(new_grammar, existing_nonterminals)
-
-        new_grammar = hybrid_and_unitary_rules(new_grammar, existing_nonterminals)
-        return new_grammar
-        '''
+S → a | XA | AX | b  
+A → RB  
+B → AX | b | a  
+X → a  
+R → XB 
+'''
