@@ -75,9 +75,10 @@ class CNF():
                     new_rhs_list.add(rhs)
                     # Add productions omitting nullable variables
                     subsets = self.get_nullable_subsets(rhs, nullable)
+                    subsets.discard("")  # Remove the empty string from subsets
                     new_rhs_list.update(subsets)
-            new_rules[lhs] = list(new_rhs_list)
-
+            if new_rhs_list:
+                new_rules[lhs] = list(new_rhs_list)
         self.rules = new_rules
 
     def get_nullable_subsets(self, rhs, nullable):
@@ -109,19 +110,23 @@ class CNF():
         """
         rules = self.rules
         unit_productions = [(lhs, rhs[0]) for lhs, rhs_list in rules.items() for rhs in rhs_list if len(rhs) == 1 and rhs.isupper()]
+        
         while unit_productions:
             lhs, unit = unit_productions.pop()
+            if lhs not in rules:
+                continue
             if lhs != unit:
                 if lhs not in rules:
                     rules[lhs] = []
-                for rhs in rules[unit]:
-                    if rhs not in rules[lhs]:
-                        rules[lhs].append(rhs)
-                        if len(rhs) == 1 and rhs.isupper():
-                            unit_productions.append((lhs, rhs))
+                if unit in rules:  # Ensure the unit production exists in rules
+                    for rhs in rules[unit]:
+                        if rhs not in rules[lhs]:
+                            rules[lhs].append(rhs)
+                            if len(rhs) == 1 and rhs.isupper():
+                                unit_productions.append((lhs, rhs))
                 rules[lhs] = [r for r in rules[lhs] if r != unit]
 
-        self.rules = rules
+        self.rules = {lhs: rhs for lhs, rhs in rules.items() if rhs}
 
     def hybrid_rule(self):
         """
@@ -155,11 +160,6 @@ class CNF():
             if lhs not in new_rules:
                 new_rules[lhs] = []
             new_rules[lhs].extend(new_rhs_list)
-
-        # Ensure 'S' is the first key in the new_rules dictionary
-        if 'S' in new_rules:
-            s_rules = new_rules.pop('S')
-            new_rules = {'S': s_rules, **new_rules}
 
         self.rules = new_rules
 
@@ -214,7 +214,14 @@ class CNF():
         self.hybrid_rule()
         while not self.is_binary():
             self.non_binary_rule()
-        return self.rules
+
+        # Ensure 'S' is the first key in the rules dictionary
+        if 'S' in self.rules:
+            ordered_rules = {'S': self.rules['S']}
+            for key in self.rules:
+                if key != 'S':
+                    ordered_rules[key] = self.rules[key]
+            self.rules = ordered_rules
 
     def get_cnf_grammar(self):
         return self.cnf_grammar

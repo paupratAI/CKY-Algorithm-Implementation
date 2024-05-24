@@ -120,7 +120,6 @@ def main():
         else:
             results.append((grammar, words_results))
     
-    print(results)
     write_output_file(output_file_path, results)
     print("Output written to 'output.txt'")
 

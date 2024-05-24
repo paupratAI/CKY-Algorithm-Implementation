@@ -22,3 +22,13 @@ ba
 aabb
 abab
 baba
+
+S -> AAA|B
+A -> aA|B
+B -> 
+
+a 
+aa 
+aaa 
+aaaa 
+aaaaaaaaaaa

@@ -1,11 +1,11 @@
 ==================================================
-Grammar:
 S -> a | XA | AX | b
 A -> RB
 B -> AX | b | a
 X -> a
 R -> XB
 
+Grammar is in CNF
 Results:
 a: True
 b: True
@@ -15,18 +15,39 @@ ba: False
 abaa: True
 
 ==================================================
-Grammar:
 S -> AB | CD | CB | SS
 A -> BC | a
 B -> SC | b
 C -> DD | b
 D -> BA
 
+Grammar is in CNF
 Results:
 ab: True
 ba: False
 aabb: True
 abab: True
 baba: False
+
+==================================================
+Original Grammar:
+S -> AAA|B
+A -> aA|B
+B ->
+
+Grammar is not in CNF
+
+Converted into CNF Grammar:
+S -> AD | AA | CA | a
+C -> a
+D -> AA
+A -> CA | a
+
+Results:
+a: True
+aa: True
+aaa: True
+aaaa: True
+aaaaaaaaaaa: True
 
 ==================================================
