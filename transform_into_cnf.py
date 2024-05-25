@@ -222,6 +222,8 @@ class CNF():
                 if key != 'S':
                     ordered_rules[key] = self.rules[key]
             self.rules = ordered_rules
+        
+        return self.rules
 
     def get_cnf_grammar(self):
         return self.cnf_grammar
