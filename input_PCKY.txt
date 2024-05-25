@@ -1,3 +1,15 @@
 
 
+S -> AB | CD | CB | SS 0.6
+A -> BC | a 0.1
+B -> SC | b 1.0
+C -> DD | b 0.2
+D -> BA 0.2
+
+
+ab
+ba
+aabb
+abab
+baba
 

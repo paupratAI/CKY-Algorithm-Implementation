@@ -3,7 +3,7 @@ from transform_into_cnf import CNF
 class PCFG():
     def __init__(self, grammar):
         self.grammar = grammar
-        self.rules = self.parse_grammar(grammar)
+        self.rules = self.parse_probabilistic_grammar(grammar)
         self.is_cnf = True
         self.cnf_grammar = None
         if not self.is_cnf:
@@ -11,7 +11,7 @@ class PCFG():
         else:
             self.cnf_grammar = self.rules
     
-    def parse_probabilistic_grammar(grammar):
+    def parse_probabilistic_grammar(self, grammar):
         """
         Parses the probabilistic grammar rules from a list of strings.
         
@@ -66,14 +66,14 @@ class PCFG():
         """
         rules = self.cnf_grammar  # Use the CNF grammar
         n = len(word)
-        table = [[set() for _ in range(n)] for _ in range(n)]
+        table = [[{} for _ in range(n)] for _ in range(n)]  # Change to store probabilities
 
         # Fill the diagonal of the table
         for j in range(n):
-            for lhs, rhs_list in rules.items():
+            for lhs, (rhs_list, prob) in rules.items():  # Unpack probability
                 for rhs in rhs_list:
                     if rhs == word[j]:
-                        table[j][j].add(lhs)
+                        table[j][j][lhs] = prob  # Store probability
 
             # Handle unit productions for the diagonal
             self.handle_unit_productions(j, j, table)
@@ -83,34 +83,40 @@ class PCFG():
             for i in range(n - span + 1):
                 j = i + span - 1
                 for k in range(i, j):
-                    for lhs, rhs_list in rules.items():
+                    for lhs, (rhs_list, prob) in rules.items():  # Unpack probability
                         for rhs in rhs_list:
                             if len(rhs) == 2:
                                 B, C = rhs
                                 if B in table[i][k] and C in table[k + 1][j]:
-                                    table[i][j].add(lhs)
+                                    # Calculate new probability
+                                    new_prob = table[i][k][B] * table[k + 1][j][C] * prob
+                                    # Update if this is a higher probability
+                                    if lhs not in table[i][j] or new_prob > table[i][j][lhs]:
+                                        table[i][j][lhs] = new_prob
 
                 # Handle unit productions for the current cell
                 self.handle_unit_productions(i, j, table)
 
-        return 'S' in table[0][n-1]
+        return ['S' in table[0][n-1], table]
 
     def handle_unit_productions(self, i, j, table):
         """
-        Handles the addition of unit productions in the CKY table.
+        Handles unit productions for a given cell in the table.
 
         Args:
-        i (int): The row index in the CKY table.
-        j (int): The column index in the CKY table.
-        table (list of list of set): The CKY table.
+        i (int): The row index of the cell.
+        j (int): The column index of the cell.
+        table (list of list of dict): The table.
         """
-        rules = self.cnf_grammar  # Use the CNF grammar
         added = True
         while added:
             added = False
-            for lhs, rhs_list in rules.items():
+            for lhs, (rhs_list, prob) in self.cnf_grammar.items():  # Unpack probability
                 for rhs in rhs_list:
-                    if len(rhs) == 1 and rhs in table[i][j]:
-                        if lhs not in table[i][j]:
-                            table[i][j].add(lhs)
+                    if len(rhs) == 1 and rhs in table[i][j] and lhs not in table[i][j]:
+                        # Calculate new probability
+                        new_prob = table[i][j][rhs] * prob
+                        # Update if this is a higher probability
+                        if lhs not in table[i][j] or new_prob > table[i][j][lhs]:
+                            table[i][j][lhs] = new_prob
                             added = True

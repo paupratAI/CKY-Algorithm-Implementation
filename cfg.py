@@ -92,7 +92,7 @@ class CFG():
                 # Handle unit productions for the current cell
                 self.handle_unit_productions(i, j, table)
 
-        return 'S' in table[0][n-1]
+        return ['S' in table[0][n-1], table]
 
     def handle_unit_productions(self, i, j, table):
         """
