@@ -1,5 +1,4 @@
 
-
 S -> AB | CD | CB | SS 0.6
 A -> BC | a 0.1
 B -> SC | b 1.0
@@ -13,3 +12,30 @@ aabb
 abab
 baba
 
+
+S -> AC | AB 1.0
+A -> a 0.5
+B -> b 0.5
+C -> SB 1.0 
+
+ab
+ba
+aabb
+abab
+baba
+aaabbb
+
+
+
+S -> AC | AB 1.0
+A -> a 1.0
+B -> b 1.0
+C -> SB 0.5 
+
+ab
+ba
+aabb
+abab
+baba
+aaabbb
+aaaabbbb

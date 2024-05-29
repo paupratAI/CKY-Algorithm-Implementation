@@ -32,3 +32,25 @@ aa
 aaa 
 aaaa 
 aaaaaaaaaaa
+
+
+
+S -> aSb |
+
+
+aaabbb
+abaaa
+bbaa 
+ab 
+
+
+S -> AC         
+A -> aAb | 
+C -> bCc |
+
+aaab 
+abbbcc 
+bbbaaa
+aaabbb 
+abbc
+
