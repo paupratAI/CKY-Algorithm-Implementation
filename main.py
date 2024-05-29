@@ -134,7 +134,7 @@ def main():
     Main function to read input, check if grammars are in CNF, execute the CKY algorithm, and write the output.
     """
     input_file_path = 'input.txt'
-    output_file_path = 'output_sense.txt'
+    output_file_path = 'output.txt'
     grammars_and_words = read_input_file(input_file_path)
     results = []
     print_cky_table = input("Do you want to print the CKY table? (y/n): ")
