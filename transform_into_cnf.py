@@ -1,30 +1,10 @@
 ### Extension 1 - Convert CFG to CNF to Chomsky Normal Form (CNF) ###
 
 class CNF():
-    def __init__(self, grammar):
-        self.grammar = grammar
-        self.rules = self.parse_grammar(grammar)
+    def __init__(self, rules):
+        self.rules = rules
         self.existing_nonterminals = set(self.rules.keys())
         self.cnf_grammar = self.transform_to_CNF()
-    
-    def parse_grammar(self, grammar):
-        """
-        Parses the grammar rules from a list of strings.
-        
-        Args:
-        grammar (list of str): The list of grammar rules in the form "LHS -> RHS".
-        
-        Returns:
-        dict: A dictionary where keys are the left-hand side (LHS) of the rules
-              and values are lists of right-hand side (RHS) alternatives.
-        """
-        rules = {}
-        for rule in grammar:
-            lhs, rhs = rule.split("->")
-            lhs = lhs.strip()
-            rhs = [r.strip() for r in rhs.split("|")]
-            rules[lhs] = rhs
-        return rules
 
     def get_unique_nonterminal(self):
         """

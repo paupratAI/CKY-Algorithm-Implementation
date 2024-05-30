@@ -7,7 +7,7 @@ class CFG():
         self.is_cnf = self.check_if_cnf()
         self.cnf_grammar = None
         if not self.is_cnf:
-            self.cnf_grammar = CNF(self.grammar).get_cnf_grammar()
+            self.cnf_grammar = CNF(self.rules).get_cnf_grammar()
         else:
             self.cnf_grammar = self.rules
     
