@@ -246,10 +246,11 @@ def main():
             cfg = PCFG(grammar)
         else:    
             cfg = CFG(grammar)
+            
+            if not cfg.is_cnf: # If the grammar is not in CNF, create a new CFG object with the CNF grammar
+                grammar2 = cfg.cnf_grammar
+                grammar2 = unparse_grammar(grammar2)
 
-        if not cfg.is_cnf: # If the grammar is not in CNF, create a new CFG object with the CNF grammar
-            grammar2 = cfg.cnf_grammar
-            grammar2 = unparse_grammar(grammar2)
         
         words_results = [] # List of tuples with the word and the result of the CKY algorithm
 
