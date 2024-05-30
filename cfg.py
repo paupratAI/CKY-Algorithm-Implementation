@@ -74,9 +74,6 @@ class CFG():
                     if rhs == word[j]:
                         table[j][j].add(lhs)
 
-            # Handle unit productions for the diagonal
-            self.handle_unit_productions(j, j, table)
-
         # Fill the rest of the table
         for span in range(2, n + 1):
             for i in range(n - span + 1):
@@ -88,28 +85,4 @@ class CFG():
                                 B, C = rhs
                                 if B in table[i][k] and C in table[k + 1][j]:
                                     table[i][j].add(lhs)
-
-                # Handle unit productions for the current cell
-                self.handle_unit_productions(i, j, table)
-
         return ['S' in table[0][n-1], table]
-
-    def handle_unit_productions(self, i, j, table):
-        """
-        Handles the addition of unit productions in the CKY table.
-
-        Args:
-        i (int): The row index in the CKY table.
-        j (int): The column index in the CKY table.
-        table (list of list of set): The CKY table.
-        """
-        rules = self.cnf_grammar  # Use the CNF grammar
-        added = True
-        while added:
-            added = False
-            for lhs, rhs_list in rules.items():
-                for rhs in rhs_list:
-                    if len(rhs) == 1 and rhs in table[i][j]:
-                        if lhs not in table[i][j]:
-                            table[i][j].add(lhs)
-                            added = True
