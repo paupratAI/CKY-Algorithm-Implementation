@@ -124,7 +124,7 @@ def write_grammar(file, result, is_in_CNF=True, probabilistic=False, print_cky_t
             file.write("\n\n\n")
 
     file.write("\n")
-    file.write("=" * 50 + "\n")
+    file.write("-" * 40 + "\n")
     file.write("\n")
 
 

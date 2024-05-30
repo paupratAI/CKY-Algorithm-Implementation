@@ -20,7 +20,7 @@ ba: False
 abaa: True
 
 
-==================================================
+----------------------------------------
 
 S -> AB | CD | CB | SS
 A -> BC | a
@@ -42,7 +42,7 @@ abab: True
 baba: False
 
 
-==================================================
+----------------------------------------
 
 Original Grammar:
 S -> AAA|B
@@ -52,10 +52,10 @@ B ->
 Grammar is not in CNF
 
 Converted into CNF Grammar:
-S -> AA | AD | CA | a
+S -> AD | AA | a | CA
 C -> a
 D -> AA
-A -> CA | a
+A -> a | CA
 
 Results:
 
@@ -70,7 +70,7 @@ aaaa: True
 aaaaaaaaaaa: True
 
 
-==================================================
+----------------------------------------
 
 Original Grammar:
 S -> aSb |
@@ -94,7 +94,7 @@ bbaa: False
 ab: True
 
 
-==================================================
+----------------------------------------
 
 Original Grammar:
 S -> AC
@@ -104,16 +104,16 @@ C -> bCc |
 Grammar is not in CNF
 
 Converted into CNF Grammar:
-S -> AC | BF | BD | EG | EB
-B -> b
-D -> c
-E -> a
-F -> CD
-G -> AB
-H -> AB
-A -> EH | EB
-I -> CD
-C -> BI | BD
+S -> AC | BD | BF | DG | DE
+B -> a
+D -> b
+E -> c
+F -> AD
+G -> CE
+H -> AD
+A -> BD | BH
+I -> CE
+C -> DI | DE
 
 Results:
 
@@ -128,5 +128,5 @@ aaabbb: True
 abbc: True
 
 
-==================================================
+----------------------------------------
 
