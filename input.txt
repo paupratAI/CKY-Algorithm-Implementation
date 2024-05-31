@@ -11,6 +11,7 @@ ab
 ba
 abaa
 
+
 S -> AB | CD | CB | SS
 A -> BC | a
 B -> SC | b
@@ -23,6 +24,7 @@ aabb
 abab
 baba
 
+
 S -> AAA|B
 A -> aA|B
 B -> 
@@ -34,9 +36,7 @@ aaaa
 aaaaaaaaaaa
 
 
-
 S -> aSb |
-
 
 aaabbb
 abaaa
@@ -54,3 +54,10 @@ bbbaaa
 aaabbb 
 abbc
 
+S -> aSb | B
+B -> aaBb |
+
+aabb
+aabbb
+aaaabbb
+aaaaabb

@@ -52,10 +52,10 @@ B ->
 Grammar is not in CNF
 
 Converted into CNF Grammar:
-S -> AA | AD | a | CA
+S -> AD | AA | CA | a
 C -> a
 D -> AA
-A -> a | CA
+A -> CA | a
 
 Results:
 
@@ -104,16 +104,16 @@ C -> bCc |
 Grammar is not in CNF
 
 Converted into CNF Grammar:
-S -> AC | BD | BF | DE | DG
-B -> a
-D -> b
-E -> c
-F -> AD
-G -> CE
-H -> AD
-A -> BD | BH
-I -> CE
-C -> DE | DI
+S -> AC | BF | BD | EG | EB
+B -> b
+D -> c
+E -> a
+F -> CD
+G -> AB
+H -> AB
+A -> EH | EB
+I -> CD
+C -> BI | BD
 
 Results:
 
@@ -126,6 +126,38 @@ bbbaaa: False
 aaabbb: True
 
 abbc: True
+
+
+----------------------------------------
+
+Original Grammar:
+S -> aSb | B
+B -> aaBb |
+
+Grammar is not in CNF
+
+Converted into CNF Grammar:
+S -> AC | AD | AF | AG
+A -> a
+C -> b
+D -> SC
+E -> BC
+F -> AE
+G -> AC
+H -> BC
+I -> AH
+J -> AC
+B -> AI | AJ
+
+Results:
+
+aabb: True
+
+aabbb: False
+
+aaaabbb: True
+
+aaaaabb: False
 
 
 ----------------------------------------
