@@ -52,7 +52,7 @@ B ->
 Grammar is not in CNF
 
 Converted into CNF Grammar:
-S -> AD | AA | a | CA
+S -> AA | AD | a | CA
 C -> a
 D -> AA
 A -> a | CA
@@ -78,7 +78,7 @@ S -> aSb |
 Grammar is not in CNF
 
 Converted into CNF Grammar:
-S -> AC | AB
+S -> AB | AC
 A -> a
 B -> b
 C -> SB
@@ -104,7 +104,7 @@ C -> bCc |
 Grammar is not in CNF
 
 Converted into CNF Grammar:
-S -> AC | BD | BF | DG | DE
+S -> AC | BD | BF | DE | DG
 B -> a
 D -> b
 E -> c
@@ -113,7 +113,7 @@ G -> CE
 H -> AD
 A -> BD | BH
 I -> CE
-C -> DI | DE
+C -> DE | DI
 
 Results:
 

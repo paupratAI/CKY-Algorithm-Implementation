@@ -55,8 +55,9 @@ class CNF():
                     new_rhs_list.add(rhs)
                     # Add productions omitting nullable variables
                     subsets = self.get_nullable_subsets(rhs, nullable)
-                    subsets.discard("")  # Remove the empty string from subsets
-                    new_rhs_list.update(subsets)
+                    for subset in subsets:
+                        if subset != "":
+                            new_rhs_list.add(subset)
             if new_rhs_list:
                 new_rules[lhs] = list(new_rhs_list)
         self.rules = new_rules
@@ -76,10 +77,13 @@ class CNF():
             return {""}
         first, rest = rhs[0], rhs[1:]
         subsets = self.get_nullable_subsets(rest, nullable)
+        new_subsets = set()
+        for subset in subsets:
+            new_subsets.add(first + subset)
         if first in nullable:
-            return subsets | {first + subset for subset in subsets}
-        else:
-            return {first + subset for subset in subsets}
+            for subset in subsets:
+                new_subsets.add(subset)
+        return new_subsets
 
     def unitary_rule(self):
         """
